@@ -17,7 +17,7 @@ export type AdapterExecutor<R, O, I extends Record> = (resolve: Resolve<R>, reje
 
 /**
  * Functionally similar to Promise<T>.
- * @see adapter()
+ * @see makeAdapter()
  */
 export type Adapter<R, S, I> = {
 	exec: () => Promise<R>,
@@ -31,7 +31,7 @@ export type Adapter<R, S, I> = {
 /**
  * TODO: ...
  */
-export const adapter = <R = any, O = any, I = Record>(executor: AdapterExecutor<R, O, I>): Adapter<R, O, I> => {
+export const makeAdapter = <R = any, O = any, I = Record>(executor: AdapterExecutor<R, O, I>): Adapter<R, O, I> => {
 	// Default then, catch, output, and input adapters
 	let then: Resolve<R> = (result) => result;
 	let cach: Reject = (err) => {throw err;};

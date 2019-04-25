@@ -2,11 +2,11 @@ import 'mocha';
 import {expect} from 'chai';
 import * as sinon from 'sinon';
 
-import {adapter} from '../../src';
+import {makeAdapter} from '../../src';
 
-describe('adapter(...)', () => {
+describe('makeAdapter(...)', () => {
 	describe('as "normal" promise', () => {
-		const simplePromiseLikeFunction = (succeed: boolean) => adapter<string>((resolve, reject) => {
+		const simplePromiseLikeFunction = (succeed: boolean) => makeAdapter<string>((resolve, reject) => {
 			if (succeed) resolve('result');
 			else reject('somethin aint right');
 		});
@@ -29,7 +29,7 @@ describe('adapter(...)', () => {
 	});
 
 	describe('with status reporting', () => {
-		const buildArray = () => adapter<number[]>(async (resolve, reject, output) => {
+		const buildArray = () => makeAdapter<number[]>(async (resolve, reject, output) => {
 			let array = [];
 			for (let i = 0; i < 3; i ++) {
 				output({msg: 'Pushing data', value: i});
@@ -60,7 +60,7 @@ describe('adapter(...)', () => {
 
 	describe('with input requests', () => {
 		const postInputSpy = sinon.fake();
-		const getPassword = () => adapter<number, string, any>(async (resolve, reject, output, input) => {
+		const getPassword = () => makeAdapter<number, string, any>(async (resolve, reject, output, input) => {
 			output('asking for password');
 			const password = await input('password');
 			postInputSpy();
