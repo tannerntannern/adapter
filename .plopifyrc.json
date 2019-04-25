@@ -1,0 +1,11 @@
+{
+  "plopifyVersion": "1.0.0-alpha.0",
+  "templateLocation": "C:\\Users\\Tanner\\Documents\\WebstormProjects\\plopify-template-ts-npm",
+  "answers": {
+    "project_name": "adapter",
+    "project_emoji": "🔌",
+    "github_username": "tannerntannern",
+    "author_name": "Tanner Nielsen",
+    "author_email": "tannerntannern@gmail.com"
+  }
+}
