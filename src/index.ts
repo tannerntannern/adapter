@@ -5,6 +5,13 @@ type Reject = (reason?: any) => void;
 type Output<T> = (data: T) => void;
 type Input<T> = <K extends keyof T>(key: K) => Promise<T[K]>;
 
+type Attachments<R, O, I> = {
+	then?: Resolve<R>,
+	catch?: Reject,
+	output?: Output<O>,
+	input?: Input<I>
+};
+
 /**
  * The type of the "executor" argument passed to PromiseConstructor.
  */
@@ -19,20 +26,21 @@ export type AdapterExecutor<R, O, I extends Record> = (resolve: Resolve<R>, reje
  * Functionally similar to Promise<T>.
  * @see makeAdapter()
  */
-export type Adapter<R, S, I> = {
+export type Adapter<R, O, I> = {
 	exec: () => Promise<R>,
 	promise: () => Promise<R>,
-	output: (onStatus?: Output<S>) => Adapter<R, S, I>,
-	input: (onInput?: Input<I>) => Adapter<R, S, I>,
-	then: (resolve: Resolve<R>) => Adapter<R, S, I>,
-	catch: (resolve: Reject) => Adapter<R, S, I>
+	output: (onOutput?: Output<O>) => Adapter<R, O, I>,
+	input: (onInput?: Input<I>) => Adapter<R, O, I>,
+	then: (resolve: Resolve<R>) => Adapter<R, O, I>,
+	catch: (resolve: Reject) => Adapter<R, O, I>,
+	attach: (attachments: Attachments<R, O, I>) => Adapter<R, O, I>
 };
 
 /**
- * TODO: ...
+ * Takes an executor function and wraps it in an Adapter.
  */
 export const makeAdapter = <R = any, O = any, I = Record>(executor: AdapterExecutor<R, O, I>): Adapter<R, O, I> => {
-	// Default then, catch, output, and input adapters
+	// Default then, catch, output, and input attachments
 	let then: Resolve<R> = (result) => result;
 	let cach: Reject = (err) => {throw err;};
 	let output: Output<O> = () => {};
@@ -60,6 +68,13 @@ export const makeAdapter = <R = any, O = any, I = Record>(executor: AdapterExecu
 		then: function (onThen) { then = onThen; return this; },
 		catch: function (onCatch) { cach = onCatch; return this; },
 		output: function (onStatus) { output = onStatus; return this; },
-		input: function (onInput) { input = onInput; return this; }
+		input: function (onInput) { input = onInput; return this; },
+		attach: function(adapters) {
+			if (adapters.then) this.then(adapters.then);
+			if (adapters.catch) this.catch(adapters.catch);
+			if (adapters.output) this.catch(adapters.output);
+			if (adapters.input) this.catch(adapters.input);
+			return this;
+		}
 	};
 };
