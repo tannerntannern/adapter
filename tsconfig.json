@@ -5,11 +5,11 @@
     "module": "commonjs",
     "types": ["node"],
     "moduleResolution": "node",
-    "sourceMap": false,
-    "outDir": "dist"
+    "outDir": "dist",
+    "declaration": true
   },
   "include": [
-    "src/**/*.ts"
+    "./src/**/*.ts"
   ],
   "exclude": [
     "node_modules"
