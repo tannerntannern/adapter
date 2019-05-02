@@ -10,84 +10,95 @@
 # What is it?
 `adapter` is a tiny TypeScript helper for writing I/O agnostic utilities in a standardized way.  Your code could run in a headless process, an interactive commandline tool, or in a graphical program, but either way your code remains the same.
 
-This is hard to appreciate without an example, so let's take a look at one:
+The idea is difficult to appreciate without an example.  If you're comfortable with writing your own Promises and `async`/`await` patterns, the following example should be fairly intuitive.  Additionally, [more detailed documentation](https://tannerntannern.github.io/adapter) is available.
 
 # Example
-Let's say you have some code that creates a remote repository via the GitHub API.  It might look something like this:
+`adapter` works its magic by injecting (or "plugging in") the means of handling I/O (`input`/`output`), just as Promises inject the means of handling success/failure (`resolve`/`reject`).  Pay attention to how they're used in the service below:
 
 ```typescript
-import {httpClient} from 'some-http-package';
+// service.ts
 
-const url = 'https://api.github.com/user/repos';
-const headers = {Authorization: 'token XXX'};
-const data = {name: 'someuser/new-repo'};
-
-console.log('Making request...');
-const result = await httpClient.post(url, data, headers);
-console.log('Done: ' + result.data);
-```
-
-This is a fine proof of concept, but now we need to make it usable.  That's where `adapter` comes in:
-
-```typescript
 import {makeAdapter} from 'adapter';
 
-type Resolve = number;
+type Resolve = string;
 type Output = string;
-type Input = {
-    'api-key': string,
-    'repo-name': string
-};
+type Input = {'input1': string, 'input2': string};
 
-const createRemoteRepo = () => makeAdapter<Resolve, Output, Input>(
+export default () => makeAdapter<Resolve, Output, Input>(
     async (resolve, reject, output, input) => {
-        const url = 'https://api.github.com/user/repos';
-        const headers = {Authorization: 'token ' + await input('api-key')};
-        const data = {name: await input('repo-name')};
-
-        output('Making request...');
-        const result = await httpClient.post(url, data, headers);
-        output('Done: ' + result.data);
+    	output('Starting task 1...');
+        const input1 = await input('input1');
+        const result1 = await doSubTask1(input1);
+        output(result1.msg);
         
-        resolve(result.statusCode);
+        output('Starting task 2...');
+        const input2 = await input('input2');
+        const result2 = await doSubTask2(input2);
+        output(result2.msg);
+        
+        if (result1.success && result2.success)
+            resolve('Tasks successful!');
+        else
+            reject('One or more tasks failed.  See previous output for details.');
     }
 );
-
-const result = await createRemoteRepo()
-    .input(async (key) => window.prompt(`Please enter your ${key}`))
-    .output(msg => window.alert(`Status: ${msg}`))
-    .exec();  // this just returns a regular Promise
 ```
 
-Well this made the code a little bigger, but exactly what did it do for us?  If you're familiar with the Promise API, this might feel like a natural extension:  Promises allow you to inject (or "plug in") the means of handling completion and failure (`resolve` and `reject`), while adapters additionally allow you to inject the means of outputting data and requesting input while the async task is running (`output` and `input`).  This makes our code very portable and reusable!
-
-However, these kinds of structures can easily create anxiety; it's easy to get confused and even easier to make mistakes when someone who did _not_ write your code is required to pass their functions to it.  Luckily the type aliases defined beforehand go a long way.  Let's take a closer look at that:
+With our portable service written, we can now put it to work.  Let's say we want to use it as part of a CLI application:
 
 ```typescript
-type Resolve = number;
-type Output = string;
-type Input = {
-    'api-key': string,
-    'repo-name': string
-};
+// cli-app.ts
 
-const createRemoteRepo = () => makeAdapter<Resolve, Output, Input>(
-    async (resolve, reject, output, input) => {
-        // ...
-    }
-);
+import {prompt} from 'inquirer';    // inquirer is tool for getting cli input
+import service from './service';
+
+const then = console.info;
+const output = console.log;
+const input = async (key) => prompt([{
+    name: key,
+    message: `Please enter a value for ${key}:`
+}]);
+
+service()                           // calling our service gives us an `Adapter`
+    .attach({then, output, input})  // here we "plug in" our attachments
+    .exec();                        // and this executes our code
 ```
 
-Because we passed our types as paramters to the `makeAdapter` function, the injected `input` and `output` are completely type-safe.  If you tried to run `output(1)` the compiler would complain because we limited output to strings.  Likewise, the `input` function will only accept `'api-key'` or `'repo-name'`, and has the appropriate return type for each.
+We could also utilize the same service in a web application:
 
-# Heads up!
-I am still in the process of negotiating rights to the npm package name from the current owner, so you cannot install via npm at the moment.  For the few if any of you who stumble upon this package and are interested: it will be available within a few days.
+```typescript
+// browser-app.ts
+
+import service from './service';
+
+service()                      // you can also attach handlers independently,
+    .then(console.info)        // like so:
+    .catch(console.error)
+    .output(console.log)
+    .input(async (key) => {
+    	return window.prompt(`Please enter a value for ${key}`);
+    })
+    .exec();
+```
+
+Hopefully seeing the `cli-app.ts` next to `browser-app.ts` illustrates the power of using `adapter`.  It doesn't take much to imagine how the same service could be used with voice control and text-to-speech, or any number of other I/O requirements.
 
 # Installation
-TODO...
+```bash
+npm install adapter
+```
+or
+```bash
+yarn add adapter
+```
 
-# API
-TODO...
+### HEADS UP!
+I am still in the process of negotiating rights to the npm package name from the current owner, so you cannot install via npm at the moment.  For the few if any of you who stumble upon this package and are interested: it will be available within a few days.
+
+# Documentation
+Be sure to check out [the documentation](https://tannerntannern.github.io/adapter)!  It includes examples, a detailed API description, and more.
 
 # Author
 Tanner Nielsen <tannerntannern@gmail.com>
+
+[Website](https://tannernielsen.com) | [GitHub](https://github.com/tannerntannern)
