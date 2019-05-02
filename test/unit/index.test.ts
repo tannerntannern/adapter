@@ -145,6 +145,20 @@ describe('makeAdapter(...)', () => {
 	});
 
 	describe('special cases', () => {
-		// TODO
+		describe('overriding existing handlers', () => {
+			// TODO: ...
+		});
+
+		describe('terminating the executor early', () => {
+			it('should resolve with the return value if return is used within the executor', () => {
+				// TODO: ...
+			});
+
+			it('should call the registered catch attachment when an error is thrown within the executor', () => {
+				// TODO: ...
+			});
+		});
+
+		// TODO: ...
 	});
 });
