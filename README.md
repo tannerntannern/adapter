@@ -8,11 +8,11 @@
 > write I/O agnostic utilities
 
 # What is it?
-<!-- /// [description] -->
+<!-- [description] -->
 `adapter` is a tiny TypeScript helper for writing I/O agnostic utilities in a standardized way.  Your code could run in a headless process, an interactive commandline tool, or in a graphical program, but either way your code remains the same.
-<!-- /// [description] -->
+<!-- [description] -->
 
-The idea is difficult to appreciate without an example.  If you're comfortable with writing your own Promises and `async`/`await` patterns, the following example should be fairly intuitive.  Additionally, [more detailed documentation](https://tannerntannern.github.io/adapter) is available.
+The idea is difficult to appreciate without an example.  If you're comfortable with writing your own Promises and `async`/`await` patterns, the following example should be fairly intuitive.  <!-- Additionally, [more detailed documentation](https://tannerntannern.github.io/adapter) is available. -->
 
 # Example
 `adapter` works its magic by injecting (or "plugging in") the means of handling I/O (`input`/`output`), just as Promises inject the means of handling success/failure (`resolve`/`reject`).  Pay attention to how they're used in the service below:
@@ -86,7 +86,7 @@ service()                      // you can also attach handlers independently,
 Hopefully seeing the `cli-app.ts` next to `browser-app.ts` illustrates the power of using `adapter`.  It doesn't take much to imagine how the same service could be used with voice control and text-to-speech, or any number of other I/O requirements.
 
 # Installation
-<!-- /// [installation] -->
+<!-- [installation] -->
 ```bash
 npm install adapter
 ```
@@ -94,13 +94,10 @@ or
 ```bash
 yarn add adapter
 ```
-<!-- /// [installation] -->
-
-### HEADS UP!
-I am still in the process of negotiating rights to the npm package name from the current owner, so you cannot install via npm at the moment.  For the few if any of you who stumble upon this package and are interested: it will be available within a few days.
+<!-- [installation] -->
 
 # Documentation
-Be sure to check out [the documentation](https://tannerntannern.github.io/adapter)!  It includes examples, a detailed API description, and more.
+More complete documentation is coming soon!  <!-- Be sure to check out [the documentation](https://tannerntannern.github.io/adapter)!  It includes examples, a detailed API description, and more. -->
 
 # Author
 Tanner Nielsen <tannerntannern@gmail.com>
