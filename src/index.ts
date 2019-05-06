@@ -1,11 +1,12 @@
-type Record = {[key: string]: any};
+type Record<T> = {[key: string]: T};
+type InputFormat = Record<{ options?: Record<any>, return: any }>;
 
 type Resolve<T> = (value?: T | PromiseLike<T>) => void;
 type Reject = (reason?: any) => void;
 type Output<T> = (data: T) => void;
-type Input<T> = <K extends keyof T>(key: K) => Promise<T[K]>;
+type Input<T extends InputFormat> = <K extends keyof T>(key: K, options?: T[K]['options']) => Promise<T[K]['return']>;
 
-type Attachments<R, O, I> = {
+type Attachments<R, O, I extends InputFormat> = {
 	then?: Resolve<R>,
 	catch?: Reject,
 	output?: Output<O>,
@@ -20,13 +21,13 @@ type PromiseExecutor<T> = (resolve: Resolve<T>, reject?: Reject) => void | Promi
 /**
  * Identical to the executor that's passed to PromiseConstructor, with the addition of output and input functions.
  */
-export type AdapterExecutor<R, O, I extends Record> = (resolve: Resolve<R>, reject?: Reject, output?: Output<O>, input?: Input<I>) => void;
+export type AdapterExecutor<R, O, I extends InputFormat> = (resolve: Resolve<R>, reject?: Reject, output?: Output<O>, input?: Input<I>) => void;
 
 /**
  * Functionally similar to Promise<T>.
  * @see makeAdapter()
  */
-export type Adapter<R, O, I> = {
+export type Adapter<R, O, I extends InputFormat> = {
 	exec: () => Promise<R>,
 	promise: () => Promise<R>,
 	output: (onOutput?: Output<O>) => Adapter<R, O, I>,
@@ -39,7 +40,7 @@ export type Adapter<R, O, I> = {
 /**
  * Takes an executor function and wraps it in an Adapter.
  */
-export const makeAdapter = <R = any, O = any, I = Record>(executor: AdapterExecutor<R, O, I>): Adapter<R, O, I> => {
+export const makeAdapter = <R = any, O = any, I extends InputFormat = InputFormat>(executor: AdapterExecutor<R, O, I>): Adapter<R, O, I> => {
 	// Default then, catch, output, and input attachments
 	const attachments: {then: Resolve<R>, cach: Reject, output: Output<O>, input: Input<I>} = {
 		then: (result) => result,

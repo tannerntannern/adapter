@@ -24,7 +24,10 @@ import {makeAdapter} from 'adapter';
 
 type Resolve = string;
 type Output = string;
-type Input = {'input1': string, 'input2': string};
+type Input = {
+    'input1': {return: string},
+    'input2': {return: string}
+};
 
 export default () => makeAdapter<Resolve, Output, Input>(
     async (resolve, reject, output, input) => {
