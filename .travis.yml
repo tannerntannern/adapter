@@ -17,6 +17,7 @@ cache:
     - node_modules
 
 deploy:
+  skip_cleanup: true
   provider: npm
   email: tannerntannern@gmail.com
   api_key:
