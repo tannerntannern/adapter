@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.0.0-beta.2"></a>
+# [1.0.0-beta.2](https://github.com/tannerntannern/adapter/compare/v1.0.0-beta.1...v1.0.0-beta.2) (2019-05-12)
+
+
+### Features
+
+* made the main API less cluttered ([d5f6554](https://github.com/tannerntannern/adapter/commit/d5f6554))
+
+
+### BREAKING CHANGES
+
+* 1) resolve and reject are no longer passed as the first arguments to an AdapterExecutor, 2) input now comes before output, 3) all adapter executors must be async
+
+
+
 <a name="1.0.0-beta.1"></a>
 # [1.0.0-beta.1](https://github.com/tannerntannern/adapter/compare/v1.0.0-beta.0...v1.0.0-beta.1) (2019-05-06)
 
