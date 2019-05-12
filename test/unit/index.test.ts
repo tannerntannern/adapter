@@ -9,9 +9,9 @@ import {makeAdapter} from '../../src';
 describe('makeAdapter(...)', () => {
 	describe('basic usage', () => {
 		describe('as "normal" promise', () => {
-			const simplePromiseLikeFunction = (succeed: boolean) => makeAdapter<string>((resolve, reject) => {
-				if (succeed) resolve('result');
-				else reject('somethin aint right');
+			const simplePromiseLikeFunction = (succeed: boolean) => makeAdapter<string>(async () => {
+				if (succeed) return 'result';
+				else throw 'somethin aint right';
 			});
 
 			it('should resolve properly', async () => {
@@ -32,13 +32,13 @@ describe('makeAdapter(...)', () => {
 		});
 
 		describe('with .output()', () => {
-			const buildArray = () => makeAdapter<number[]>(async (resolve, reject, output) => {
+			const buildArray = () => makeAdapter<number[]>(async (input, output) => {
 				let array = [];
 				for (let i = 0; i < 3; i ++) {
 					output({msg: 'Pushing data', value: i});
 					array.push(i);
 				}
-				resolve(array);
+				return array;
 			});
 
 			it('should resolve properly', async () => {
@@ -63,13 +63,12 @@ describe('makeAdapter(...)', () => {
 
 		describe('with .input()', () => {
 			const postInputSpy = sinon.fake();
-			const getPassword = () => makeAdapter<number, string, {password: {return: string}}>(async (resolve, reject, output, input) => {
+			const getPassword = () => makeAdapter<number, string, {password: {return: string}}>(async (input, output) => {
 				output('asking for password');
 				const password = await input('password');
 				postInputSpy();
 				output('got password');
-				const passwordLength = password.length;
-				resolve(passwordLength);
+				return password.length;
 			});
 
 			it('should throw an error if no .input() is used', () => {
@@ -96,7 +95,7 @@ describe('makeAdapter(...)', () => {
 		});
 
 		describe('with .then()', () => {
-			const simpleResolver = () => makeAdapter(resolve => resolve(3));
+			const simpleResolver = () => makeAdapter(async () => 3);
 
 			it('should work using .then() before .promise()', async () => {
 				const then = sinon.spy(x => x);
@@ -109,24 +108,27 @@ describe('makeAdapter(...)', () => {
 		});
 
 		describe('with .catch()', () => {
-			const thrower = () => makeAdapter((resolve, reject) => reject('ERROR'));
+			const err = new Error('ERROR');
+			const thrower = () => makeAdapter(async () => {
+				throw err;
+			});
 
 			it('should work using .catch() before .promise()', async () => {
 				const cach = sinon.fake();
 
 				await thrower().catch(cach).promise();
-				expect(cach).calledOnceWithExactly('ERROR');
+				expect(cach).calledOnceWithExactly(err);
 			});
 		});
 
 		describe('using .attach()', () => {
-			const funky = (succeed: boolean) => makeAdapter<string, string, {value: {return: string}}>(async (resolve, reject, output, input) => {
-				if (!succeed) return reject();
+			const funky = (succeed: boolean) => makeAdapter<string, string, {value: {return: string}}>(async (input, output) => {
+				if (!succeed) throw new Error();
 
 				let val = await input('value');
 				output(val);
 
-				resolve(val);
+				return val;
 			});
 
 			it('should work with all attachments at once', async () => {
