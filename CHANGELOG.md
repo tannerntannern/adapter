@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.0.0-beta.5"></a>
+# [1.0.0-beta.5](https://github.com/tannerntannern/adapter/compare/v1.0.0-beta.4...v1.0.0-beta.5) (2019-05-13)
+
+
+### Features
+
+* made the input format a little more intuitive to specify ([0311e0a](https://github.com/tannerntannern/adapter/commit/0311e0a))
+
+
+### BREAKING CHANGES
+
+* old input formats are now incompatible
+
+
+
 <a name="1.0.0-beta.4"></a>
 # [1.0.0-beta.4](https://github.com/tannerntannern/adapter/compare/v1.0.0-beta.3...v1.0.0-beta.4) (2019-05-12)
 
