@@ -1,10 +1,11 @@
-type Record<T> = {[key: string]: T};
-type InputFormat = Record<{ options?: Record<any>, return: any }>;
+type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+
+type InputFormat = {key: string, return: any} & {[key: string]: any};
 
 type Resolve<T> = (value?: T | PromiseLike<T>) => void;
 type Reject = (reason?: any) => void;
 type Output<T> = (data: T) => void;
-type Input<T extends InputFormat> = <K extends keyof T>(key: K, options?: T[K]['options']) => Promise<T[K]['return']>;
+type Input<T extends InputFormat> = (key: T['key'], options?: Omit<T, 'key' | 'return'>) => Promise<T['return']>;
 
 type Attachments<R, O, I extends InputFormat> = {
 	then?: Resolve<R>,
