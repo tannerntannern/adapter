@@ -23,10 +23,9 @@ import {doSubTask1, doSubTask2} from './somewhere';
 
 type Resolve = string;
 type Output = string;
-type Input = {
-    'input1': {return: string},
-    'input2': {return: string}
-};
+type Input =
+    {key: 'input1', return: string} |
+    {key: 'input2', return: string};
 
 export default () => makeAdapter<Resolve, Output, Input>(async (input, output) => {
     output('Starting task 1...');
