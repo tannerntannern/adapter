@@ -1,11 +1,13 @@
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
-type InputFormat = {key: string, return: any} & {[key: string]: any};
+type InputFormat = {
+	[type: string]: {key: string, return: any} & {[option: string]: any}
+};
 
 type Resolve<T> = (value?: T | PromiseLike<T>) => void;
 type Reject = (reason?: any) => void;
 type Output<T> = (data: T) => void;
-type Input<T extends InputFormat> = (key: T['key'], options?: Omit<T, 'key' | 'return'>) => Promise<T['return']>;
+type Input<F extends InputFormat> = <T extends keyof F>(type: T, key: F[T]['key'], options?: Omit<F[T], 'key' | 'return'>) => Promise<F[T]['return']>;
 
 type Attachments<R, I extends InputFormat, O> = {
 	then?: Resolve<R>,
