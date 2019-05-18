@@ -63,7 +63,7 @@ describe('makeAdapter(...)', () => {
 
 		describe('with .input()', () => {
 			const postInputSpy = sinon.fake();
-			const getPassword = () => makeAdapter<number, string, {key: 'password', return: string}>(async (input, output) => {
+			const getPassword = () => makeAdapter<number, {key: 'password', return: string}, string>(async (input, output) => {
 				output('asking for password');
 				const password = await input('password');
 				postInputSpy();
@@ -122,7 +122,7 @@ describe('makeAdapter(...)', () => {
 		});
 
 		describe('using .attach()', () => {
-			const funky = (succeed: boolean) => makeAdapter<string, string, {key: 'value', return: string}>(async (input, output) => {
+			const funky = (succeed: boolean) => makeAdapter<string, {key: 'value', return: string}, string>(async (input, output) => {
 				if (!succeed) throw new Error();
 
 				let val = await input('value');

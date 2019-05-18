@@ -7,7 +7,7 @@ type Reject = (reason?: any) => void;
 type Output<T> = (data: T) => void;
 type Input<T extends InputFormat> = (key: T['key'], options?: Omit<T, 'key' | 'return'>) => Promise<T['return']>;
 
-type Attachments<R, O, I extends InputFormat> = {
+type Attachments<R, I extends InputFormat, O> = {
 	then?: Resolve<R>,
 	catch?: Reject,
 	output?: Output<O>,
@@ -17,28 +17,28 @@ type Attachments<R, O, I extends InputFormat> = {
 /**
  * Defines the format of an AdapterExecutor.
  */
-export type AdapterExecutor<R, O, I extends InputFormat> = (input?: Input<I>, output?: Output<O>) => Promise<R>;
+export type AdapterExecutor<R, I extends InputFormat, O> = (input?: Input<I>, output?: Output<O>) => Promise<R>;
 
 /**
  * Functionally similar to Promise<T>.
  * @see makeAdapter()
  */
-export type Adapter<R, O, I extends InputFormat> = {
+export type Adapter<R, I extends InputFormat, O> = {
 	exec: () => Promise<R>,
 	promise: () => Promise<R>,
-	output: (onOutput?: Output<O>) => Adapter<R, O, I>,
-	input: (onInput?: Input<I>) => Adapter<R, O, I>,
-	then: (resolve: Resolve<R>) => Adapter<R, O, I>,
-	catch: (resolve: Reject) => Adapter<R, O, I>,
-	attach: (attachments: Attachments<R, O, I>) => Adapter<R, O, I>
+	output: (onOutput?: Output<O>) => Adapter<R, I, O>,
+	input: (onInput?: Input<I>) => Adapter<R, I, O>,
+	then: (resolve: Resolve<R>) => Adapter<R, I, O>,
+	catch: (resolve: Reject) => Adapter<R, I, O>,
+	attach: (attachments: Attachments<R, I, O>) => Adapter<R, I, O>
 };
 
 /**
  * Takes an executor function and wraps it in an Adapter.
  */
-export const makeAdapter = <R = any, O = any, I extends InputFormat = InputFormat>(executor: AdapterExecutor<R, O, I>): Adapter<R, O, I> => {
+export const makeAdapter = <R = any, I extends InputFormat = InputFormat, O = any>(executor: AdapterExecutor<R, I, O>): Adapter<R, I, O> => {
 	// Default then, catch, output, and input attachments
-	const attachments: Attachments<R, O, I> = {
+	const attachments: Attachments<R, I, O> = {
 		then: (result) => result,
 		catch: (err) => {throw err;},
 		input: async (key) => {
