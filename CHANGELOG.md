@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.0.0-beta.6"></a>
+# [1.0.0-beta.6](https://github.com/tannerntannern/adapter/compare/v1.0.0-beta.5...v1.0.0-beta.6) (2019-05-20)
+
+
+### Bug Fixes
+
+* fixed the order of the Adapter type paramters ([b229829](https://github.com/tannerntannern/adapter/commit/b229829))
+
+
+### Features
+
+* changed the input format (again) to improve the inferred types ([eb05a0e](https://github.com/tannerntannern/adapter/commit/eb05a0e))
+
+
+### BREAKING CHANGES
+
+* input format must now be keyed by type, and input functions now must take a type and a key
+
+
+
 <a name="1.0.0-beta.5"></a>
 # [1.0.0-beta.5](https://github.com/tannerntannern/adapter/compare/v1.0.0-beta.4...v1.0.0-beta.5) (2019-05-13)
 
