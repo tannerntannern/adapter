@@ -13,57 +13,96 @@
 The idea is difficult to appreciate without an example.  If you're comfortable with writing your own Promises and `async`/`await` patterns, the following example should be fairly intuitive.  <!-- Additionally, [more detailed documentation](https://tannerntannern.github.io/adapter) is available. -->
 
 # Example
-`adapter` works its magic by injecting (or "plugging in") the means of handling I/O (`input`/`output`), just as Promises inject the means of handling success/failure (`resolve`/`reject`).  Pay attention to how they're used in the service below:
+Let's say that you have some code that creates a remote repository via the GitHub API.  It might look roughly like this:
 
 ```typescript
-// service.ts
+import axios from 'axios';    // http library
 
-import {makeAdapter} from 'adapter';
-import {doSubTask1, doSubTask2} from './somewhere';
+const url = 'https://api.github.com/user/repos';
+const headers = { Authorization: 'token <access-token>' };
+const data = { name: '<repo-name>', private: true };
 
-type Resolve = string;
-type Output = string;
-type Input =
-    {key: 'input1', return: string} |
-    {key: 'input2', return: string};
-
-export default () => makeAdapter<Resolve, Output, Input>(async (input, output) => {
-    output('Starting task 1...');
-    const input1 = await input('input1');
-    const result1 = await doSubTask1(input1);
-    output(result1.msg);
-
-    output('Starting task 2...');
-    const input2 = await input('input2');
-    const result2 = await doSubTask2(input2);
-    output(result2.msg);
-
-    if (result1.success && result2.success)
-        return 'Tasks successful!';
-    else
-        throw 'One or more tasks failed.  See previous output for details.';
-});
+await axios.post(url, data, {headers});
 ```
 
-With our portable service written, we can now put it to work.  Let's say we want to use it as part of a CLI application:
+`adapter` can be used to improve this code by injecting (or "plugging in") the means of handling I/O (`input`/`output`), just as Promises inject the means of handling success/failure (`resolve`/`reject`).  Let's rewrite the above code leveraging these injections:
+
+```typescript
+// github-service.ts
+
+import axios, {AxiosResponse} from 'axios';
+import {makeAdapter} from 'adapter';
+
+type Resolve = AxiosResponse;
+type Input = {
+    'text': { key: 'access-token' | 'repo-name', message: string, return: string },
+    'yes-no': { key: 'private' | 'retry', message: string, return: boolean }
+};
+type Output = string;
+
+export const createRepo = () => makeAdapter<Resolve, Input, Output>(
+    async (input, output) => {
+        const url = 'https://api.github.com/user/repos';
+        const headers = {
+            Authorization: 'token ' + await input(
+                'text', 'access-token', {message: 'Personal Access Token: '}
+            )
+        };
+        const data = {
+            name: await input(
+                'text', 'repo-name', {message: 'Repository Name: '}
+            ),
+            private: await input(
+                'yes-no', 'private', {message: 'Private?: '}
+            )        	
+        };
+        
+        output('Making API call to GitHub...');
+        let response;
+        try {
+            response = await axios.post(url, data, {headers});
+        } catch (e) {
+            output('Something went wrong... Status code: ' + e.response.status);
+            if (await input('yes-no', 'retry', 'Would you like to try again? ')) {
+                return await createRepo().attach({input, output});
+            } else {
+                throw e;
+            }
+        }
+        
+        output('Repository created!');
+        return response;
+    }
+);
+```
+
+Now that our input and output functions are injected, we can use this service anywhere.  Say we want to use it as part of a CLI application:
 
 ```typescript
 // cli-app.ts
 
 import {prompt} from 'inquirer';    // inquirer is tool for getting cli input
-import service from './service';
+import {createRepo} from './github-service';
 
 const then = console.info;
 const output = console.log;
-const input = async (key) => prompt([{
-    name: key,
-    message: `Please enter a value for ${key}:`
-}]);
+const input = async (type, key, options) => {
+    if (type === 'text') type = 'input';
+    if (type === 'yes-no') type = 'confirm';
+    
+    return await prompt([{
+        name: key,
+        type: type,
+        message: options.message
+    }]);
+};
 
-service()                           // calling our service gives us an `Adapter`
+createRepo()                        // calling our service gives us an `Adapter`
     .attach({then, output, input})  // here we "plug in" our attachments
     .exec();                        // and this executes our code
 ```
+
+<!-- TODO: Here's what that might look like -->
 
 We could also utilize the same service in a web application:
 
@@ -76,13 +115,22 @@ service()                      // you can also attach handlers independently,
     .then(console.info)        // like so:
     .catch(console.error)
     .output(console.log)
-    .input(async (key) => {
-    	return window.prompt(`Please enter a value for ${key}`);
+    .input(async (type, key, options) => {
+    	if (type === 'yes-no') {
+    		const yn = window.prompt(options.message + '(Y/n)');
+    		return yn === 'y';
+    	} else {
+			return window.prompt(options.message);
+    	}
     })
     .exec();
 ```
 
-Hopefully seeing the `cli-app.ts` next to `browser-app.ts` illustrates the power of using `adapter`.  It doesn't take much to imagine how the same service could be used with voice control and text-to-speech, or any number of other I/O requirements.
+<!-- TODO: Here's what that might look like: -->
+
+Hopefully seeing these two applications side by side illustrates the advantages of using `adapter`.
+
+<!-- TODO: make voice control demo just for fun? -->
 
 # Installation
 ```bash
