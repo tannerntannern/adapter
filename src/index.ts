@@ -4,6 +4,8 @@ type InputFormat = {
 	[type: string]: {key: string, return: any} & {[option: string]: any}
 };
 
+type InputKeys<I extends InputFormat> = I[keyof I]['key'];
+
 type Resolve<T> = (value?: T | PromiseLike<T>) => void;
 type Reject = (reason?: any) => void;
 type Output<T> = (data: T) => void;
@@ -22,6 +24,14 @@ type Attachments<R, I extends InputFormat, O> = {
 export type AdapterExecutor<R, I extends InputFormat, O> = (input?: Input<I>, output?: Output<O>) => Promise<R>;
 
 /**
+ * Contains metadata about the Adapter.
+ */
+export type AdapterMeta<R, I extends InputFormat, O> = {
+	description?: string,
+	inputs?: {[K in InputKeys<I>]: string},
+};
+
+/**
  * Functionally similar to Promise<T>.
  * @see makeAdapter()
  */
@@ -32,13 +42,17 @@ export type Adapter<R, I extends InputFormat, O> = {
 	input: (onInput?: Input<I>) => Adapter<R, I, O>,
 	then: (resolve: Resolve<R>) => Adapter<R, I, O>,
 	catch: (resolve: Reject) => Adapter<R, I, O>,
-	attach: (attachments: Attachments<R, I, O>) => Adapter<R, I, O>
+	attach: (attachments: Attachments<R, I, O>) => Adapter<R, I, O>,
+	meta: AdapterMeta<R, I, O>
 };
 
 /**
  * Takes an executor function and wraps it in an Adapter.
  */
-export const makeAdapter = <R = any, I extends InputFormat = InputFormat, O = any>(executor: AdapterExecutor<R, I, O>): Adapter<R, I, O> => {
+export const makeAdapter = <R = any, I extends InputFormat = InputFormat, O = any>(
+	executor: AdapterExecutor<R, I, O>,
+	meta: AdapterMeta<R, I, O> = null,
+): Adapter<R, I, O> => {
 	// Default then, catch, output, and input attachments
 	const attachments: Attachments<R, I, O> = {
 		then: (result) => result,
@@ -62,6 +76,7 @@ export const makeAdapter = <R = any, I extends InputFormat = InputFormat, O = an
 		catch: function(onCatch) { attachments.catch = onCatch; return this; },
 		output: function(onStatus) { attachments.output = onStatus; return this; },
 		input: function(onInput) { attachments.input = onInput; return this; },
-		attach: function(adapters) { Object.assign(attachments, adapters); return this; }
+		attach: function(adapters) { Object.assign(attachments, adapters); return this; },
+		meta: meta,
 	};
 };
