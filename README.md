@@ -35,8 +35,16 @@ import {makeAdapter} from 'adapter';
 
 type Resolve = AxiosResponse;
 type Input = {
-    'text': { key: 'access-token' | 'repo-name', message: string, return: string },
-    'yes-no': { key: 'private' | 'retry', message: string, return: boolean }
+    types: { 'text': string, 'yes-no': boolean },
+    options: {
+        [type: string]: { message: string }
+    },
+    keys: {
+        'access-token': 'text',
+        'repo-name': 'text',
+        'private': 'yes-no',
+        'retry': 'yes-no',
+    }
 };
 type Output = string;
 
