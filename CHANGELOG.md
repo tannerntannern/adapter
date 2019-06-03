@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.0.0-beta.7"></a>
+# [1.0.0-beta.7](https://github.com/tannerntannern/adapter/compare/v1.0.0-beta.6...v1.0.0-beta.7) (2019-06-03)
+
+
+### Features
+
+* added an optional meta property to adapters ([0e867e6](https://github.com/tannerntannern/adapter/commit/0e867e6))
+* made the input format much more flexible and intuitive ([8b95bbd](https://github.com/tannerntannern/adapter/commit/8b95bbd))
+
+
+### BREAKING CHANGES
+
+* incompatible with old input format
+
+
+
 <a name="1.0.0-beta.6"></a>
 # [1.0.0-beta.6](https://github.com/tannerntannern/adapter/compare/v1.0.0-beta.5...v1.0.0-beta.6) (2019-05-20)
 
