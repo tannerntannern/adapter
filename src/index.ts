@@ -1,15 +1,28 @@
-type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-
 type InputFormat = {
-	[type: string]: {key: string, return: any} & {[option: string]: any}
+	types: {
+		[type: string]: any
+	},
+	options?: {
+		[type in keyof InputFormat['types']]?: { [option: string]: any }
+	},
+	keys: {
+		[key: string]: keyof InputFormat['types']
+	}
 };
 
-type InputKeys<I extends InputFormat> = I[keyof I]['key'];
+type InputOptions<I extends InputFormat, T extends keyof I['types']> =
+	'options' extends keyof I
+		? (T extends keyof I['options'] ? I['options'][T] : never)
+		: never;
 
 type Resolve<T> = (value?: T | PromiseLike<T>) => void;
 type Reject = (reason?: any) => void;
 type Output<T> = (data: T) => void;
-type Input<F extends InputFormat> = <T extends keyof F>(type: T, key: F[T]['key'], options?: Omit<F[T], 'key' | 'return'>) => Promise<F[T]['return']>;
+type Input<I extends InputFormat> = <T extends keyof I['types'], K extends keyof I['keys']>(
+	type: T,
+	key: K,
+	options?: InputOptions<I, T>
+) => Promise<I['types'][T]>;
 
 type Attachments<R, I extends InputFormat, O> = {
 	then?: Resolve<R>,
@@ -28,7 +41,7 @@ export type AdapterExecutor<R, I extends InputFormat, O> = (input?: Input<I>, ou
  */
 export type AdapterMeta<R, I extends InputFormat, O> = {
 	description?: string,
-	inputs?: {[K in InputKeys<I>]: string},
+	inputs?: {[K in keyof I['keys']]: string},
 };
 
 /**
