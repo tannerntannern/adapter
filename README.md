@@ -125,10 +125,10 @@ service()                      // you can also attach handlers independently,
     .output(console.log)
     .input(async (type, key, options) => {
     	if (type === 'yes-no') {
-    		const yn = window.prompt(options.message + '(Y/n)');
-    		return yn === 'y';
+            const yn = window.prompt(options.message + '(Y/n)');
+            return yn === 'y';
     	} else {
-			return window.prompt(options.message);
+            return window.prompt(options.message);
     	}
     })
     .exec();
