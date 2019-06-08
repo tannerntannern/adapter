@@ -1,28 +1,44 @@
-type InputFormat = {
-	types: {
-		[type: string]: any
-	},
-	options?: {
-		[type in keyof InputFormat['types']]?: { [option: string]: any }
-	},
-	keys: {
-		[key: string]: keyof InputFormat['types']
-	}
+// TODO FEATURES:
+//		- input.batch inside adapters
+//		- don't use await in here to avoid boilerplate bloat from es5 transpilation
+
+type InputTypes = {
+	[type: string]: any
+};
+type InputOptions<T extends InputTypes> = {
+	[type in keyof T]?: { [option: string]: any }
+};
+type InputKeys<T extends InputTypes> = {
+	[key: string]: keyof T
 };
 
-type InputOptions<I extends InputFormat, T extends keyof I['types']> =
-	'options' extends keyof I
-		? (T extends keyof I['options'] ? I['options'][T] : never)
+type InputFormat<T extends InputTypes = InputTypes> = {
+	types: T,
+	options?: InputOptions<T>,
+	keys: InputKeys<T>
+};
+
+type GetInputOptions<IF extends InputFormat, T extends keyof IF['types']> =
+	'options' extends keyof IF
+		? (T extends keyof IF['options'] ? IF['options'][T] : never)
 		: never;
 
+type InputReturn<IF extends InputFormat, K extends keyof IF['keys']> = IF['types'][IF['keys'][K]];
+
 type Resolve<T> = (value?: T | PromiseLike<T>) => void;
+
 type Reject = (reason?: any) => void;
+
 type Output<T> = (data: T) => void;
-type Input<I extends InputFormat> = <T extends keyof I['types'], K extends keyof I['keys']>(
-	type: T,
+
+type Input<IF extends InputFormat> = <K extends keyof IF['keys']>(
 	key: K,
-	options?: InputOptions<I, T>
-) => Promise<I['types'][T]>;
+	options?: GetInputOptions<IF, IF['keys'][K]>
+) => Promise<InputReturn<IF, K>>;
+
+type HeadlessInput<IF extends InputFormat> = {
+	[K in keyof IF['keys']]: InputReturn<IF, K>
+};
 
 type Attachments<R, I extends InputFormat, O> = {
 	then?: Resolve<R>,
@@ -52,7 +68,7 @@ export type Adapter<R, I extends InputFormat, O> = {
 	exec: () => Promise<R>,
 	promise: () => Promise<R>,
 	output: (onOutput?: Output<O>) => Adapter<R, I, O>,
-	input: (onInput?: Input<I>) => Adapter<R, I, O>,
+	input: (onInput?: Input<I> | HeadlessInput<I>) => Adapter<R, I, O>,
 	then: (resolve: Resolve<R>) => Adapter<R, I, O>,
 	catch: (resolve: Reject) => Adapter<R, I, O>,
 	attach: (attachments: Attachments<R, I, O>) => Adapter<R, I, O>,
@@ -88,7 +104,16 @@ export const makeAdapter = <R = any, I extends InputFormat = InputFormat, O = an
 		then: function(onThen) { attachments.then = onThen; return this; },
 		catch: function(onCatch) { attachments.catch = onCatch; return this; },
 		output: function(onStatus) { attachments.output = onStatus; return this; },
-		input: function(onInput) { attachments.input = onInput; return this; },
+		input: function(onInput) {
+			if (typeof onInput !== 'function') {
+				const data = onInput;
+				onInput = key => (data)[key];
+			}
+
+			attachments.input = onInput;
+
+			return this;
+		},
 		attach: function(adapters) { Object.assign(attachments, adapters); return this; },
 		meta: meta,
 	};
