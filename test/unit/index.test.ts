@@ -70,7 +70,7 @@ describe('makeAdapter(...)', () => {
 			const postInputSpy = sinon.fake();
 			const getPassword = () => makeAdapter<number, Format, string>(async (input, output) => {
 				output('asking for password');
-				const password = await input('password');
+				const password = await input('password', 'password');
 				postInputSpy();
 				output('got password');
 				return password.length;
@@ -98,8 +98,10 @@ describe('makeAdapter(...)', () => {
 				expect(outputReceiver).calledWithExactly('got password');
 			});
 
-			it('should receive headless input properly', () => {
-				// TODO: ...
+			it('should receive headless input properly', async () => {
+				const passwordLength = await (getPassword().input({ password: 'pa$$word' }).exec());
+
+				expect(passwordLength).to.equal(8);
 			});
 		});
 
@@ -138,7 +140,7 @@ describe('makeAdapter(...)', () => {
 			const funky = (succeed: boolean) => makeAdapter<string, Format, string>(async (input, output) => {
 				if (!succeed) throw new Error();
 
-				let val = await input('value');
+				let val = await input('value', 'input');
 				output(val);
 
 				return val;

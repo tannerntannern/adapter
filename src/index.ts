@@ -31,9 +31,10 @@ type Reject = (reason?: any) => void;
 
 type Output<T> = (data: T) => void;
 
-type Input<IF extends InputFormat> = <K extends keyof IF['keys']>(
+type Input<IF extends InputFormat> = <K extends keyof IF['keys'], T extends IF['keys'][K]>(
 	key: K,
-	options?: GetInputOptions<IF, IF['keys'][K]>
+	type: T,
+	options?: GetInputOptions<IF, T>
 ) => Promise<InputReturn<IF, K>>;
 
 type HeadlessInput<IF extends InputFormat> = {

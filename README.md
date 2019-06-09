@@ -53,15 +53,15 @@ export const createRepo = () => makeAdapter<Resolve, Input, Output>(
         const url = 'https://api.github.com/user/repos';
         const headers = {
             Authorization: 'token ' + await input(
-                'text', 'access-token', {message: 'Personal Access Token: '}
+                'access-token', 'text', {message: 'Personal Access Token: '}
             )
         };
         const data = {
             name: await input(
-                'text', 'repo-name', {message: 'Repository Name: '}
+                'repo-name', 'text', {message: 'Repository Name: '}
             ),
             private: await input(
-                'yes-no', 'private', {message: 'Private?: '}
+                'private', 'yes-no', {message: 'Private?: '}
             )        	
         };
         
@@ -71,7 +71,7 @@ export const createRepo = () => makeAdapter<Resolve, Input, Output>(
             response = await axios.post(url, data, {headers});
         } catch (e) {
             output('Something went wrong... Status code: ' + e.response.status);
-            if (await input('yes-no', 'retry', 'Would you like to try again? ')) {
+            if (await input('retry', 'yes-no', {message: 'Would you like to try again? '})) {
                 return await createRepo().attach({input, output});
             } else {
                 throw e;
