@@ -90,7 +90,7 @@ describe('makeAdapter(...)', () => {
 				const passwordLength = await (getPassword().input(inputReceiver).output(outputReceiver).promise());
 
 				expect(passwordLength).to.equal(8);
-				expect(inputReceiver).calledOnceWithExactly('password');
+				expect(inputReceiver).calledOnceWithExactly('password', 'password');
 				expect(inputReceiver).calledAfter(outputReceiver);
 				expect(inputReceiver).calledBefore(outputReceiver);
 				expect(outputReceiver.callCount).to.equal(2);
@@ -155,7 +155,7 @@ describe('makeAdapter(...)', () => {
 
 				expect(result).to.equal('blah');
 				expect(then).calledOnceWithExactly('blah');
-				expect(input).calledOnceWithExactly('value');
+				expect(input).calledOnceWithExactly('value', 'input');
 				expect(output).calledOnceWithExactly('blah');
 			});
 		});
