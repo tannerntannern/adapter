@@ -1,6 +1,5 @@
 // TODO FEATURES:
 //		- input.batch inside adapters
-//		- don't use await in here to avoid boilerplate bloat from es5 transpilation
 
 type InputTypes = {
 	[type: string]: any
@@ -87,9 +86,7 @@ export const makeAdapter = <R = any, I extends InputFormat = InputFormat, O = an
 	const attachments: Attachments<R, I, O> = {
 		then: (result) => result,
 		catch: (err) => {throw err;},
-		input: async (key) => {
-			throw new Error(`Input "${key}" must be supplied`);
-		},
+		input: key => Promise.reject(new Error(`Input "${key}" must be supplied`)),
 		output: () => {}
 	};
 
