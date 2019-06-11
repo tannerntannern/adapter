@@ -18,6 +18,7 @@
     "quotes": ["error", "single"],
     "semi": ["error", "always"],
     "no-var": ["error"],
-    "eol-last": "error"
+    "eol-last": "error",
+    "comma-dangle": ["error", "always-multiline"]
   }
 }
