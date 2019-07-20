@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.0.0-beta.8"></a>
+# [1.0.0-beta.8](https://github.com/tannerntannern/adapter/compare/v1.0.0-beta.7...v1.0.0-beta.8) (2019-07-20)
+
+
+### Bug Fixes
+
+* brought back the type arg so input functions can respond properly ([db08ebc](https://github.com/tannerntannern/adapter/commit/db08ebc))
+
+
+### Features
+
+* added inputBatch, which allows you to distinguish between single and grouped inputs ([50e7723](https://github.com/tannerntannern/adapter/commit/50e7723))
+* simplified the input format and allowed plain objects to be passed ([3eed639](https://github.com/tannerntannern/adapter/commit/3eed639))
+
+
+### Performance Improvements
+
+* removed `async` to prevent TypeScript from adding the ES5 polyfills ([a274628](https://github.com/tannerntannern/adapter/commit/a274628))
+
+
+### BREAKING CHANGES
+
+* input type arg is required... again
+* first arg is now the key and now the type; the type is always inferred from the key
+
+
+
 <a name="1.0.0-beta.7"></a>
 # [1.0.0-beta.7](https://github.com/tannerntannern/adapter/compare/v1.0.0-beta.6...v1.0.0-beta.7) (2019-06-03)
 
