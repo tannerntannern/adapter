@@ -105,6 +105,54 @@ describe('makeAdapter(...)', () => {
 			});
 		});
 
+		describe('with .inputBatch()', () => {
+			type Format = {
+				types: {
+					username: string,
+					password: string,
+				},
+				keys: {
+					user: 'username',
+					pass: 'password',
+				}
+			};
+
+			const doAuthAction = () => makeAdapter<void, Format, string>(async (input, output) => {
+				const credentials = await input.batch(
+					{ user: 'username', pass: 'password' },
+					'authenticate'
+				);
+
+				const auth = (username, password) => {
+					// do something with credentials...
+				};
+
+				auth(credentials.user, credentials.pass);
+			});
+
+			it('should run home to input() when inputBatch() is undefined', async () => {
+				const inputFake = sinon.fake.resolves('asdf');
+
+				await doAuthAction().input(inputFake).exec();
+
+				expect(inputFake).calledWith('user', 'username');
+				expect(inputFake).calledWith('pass', 'password');
+			});
+
+			it('should call inputBatch() when it is applied', async () => {
+				const inputFake = sinon.fake.resolves(null);
+				const inputBatchFake = sinon.fake.resolves({user: 'asdf', pass: 'asdf'});
+
+				await doAuthAction().input(inputFake).inputBatch(inputBatchFake).exec();
+
+				expect(inputFake.notCalled).to.be.true;
+				expect(inputBatchFake).calledWith(
+					{ user: 'username', pass: 'password' },
+					'authenticate'
+				);
+			});
+		});
+
 		describe('with .then()', () => {
 			const simpleResolver = () => makeAdapter(async () => 3);
 
