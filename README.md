@@ -13,6 +13,8 @@
 The idea is difficult to appreciate without an example.  If you're comfortable with writing your own Promises and `async`/`await` patterns, the following example should be fairly intuitive.  <!-- Additionally, [more detailed documentation](https://tannerntannern.github.io/adapter) is available. -->
 
 # Example
+<!-- TODO: change this example to just pull an existing repo.  Then the input would depend on whether the repo was private and requires credentials.  This way the input is "unplanned" and better demonstrates the value of having an adapter. -->
+
 Let's say that you have some code that creates a remote repository via the GitHub API.  It might look roughly like this:
 
 ```typescript
