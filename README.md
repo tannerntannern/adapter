@@ -1,6 +1,6 @@
 # 🔌 adapter
 [![npm version](https://badgen.net/npm/v/adapter)](https://npmjs.com/package/adapter)
-[![github actions](https://img.shields.io/github/workflow/status/tannerntannern/adapter/adapter%20CI)]()
+[![github actions](https://img.shields.io/github/workflow/status/tannerntannern/adapter/adapter%20CI)](https://github.com/tannerntannern/adapter/actions)
 [![min size](https://badgen.net/bundlephobia/min/adapter)](https://bundlephobia.com/result?p=adapter)
 [![conventional commits](https://badgen.net/badge/Conventional%20Commits/1.0.0/yellow)](https://www.conventionalcommits.org/)
 
